@@ -11,7 +11,6 @@ export const Tweet = (props) => {
     return (
         <div className={style}>
             {((item.retweet && item.content) || !item.retweet) && <div className="card-body">
-                {/*<p>{item.id} - <Link to={`/details/${item.id}`}>{item.content}</Link></p>*/}
                 <p>{item.content}</p>
 
                 {item.image && <img className={"card-img"} src={item.image} alt={"no alter"}/>}
@@ -35,7 +34,7 @@ export const Retweet = (props) => {
     return (
         <div className="row">
             <div className="col-11 mx-auto p-2 border rounded">
-                <p className="mb-0 text-muted small">Retweet by {user.username}</p>
+                <p className="mb-0 text-muted small">Retweet by <a href={"#"}>{user.username}</a></p>
                 <Tweet item={tweet}/>
             </div>
         </div>
