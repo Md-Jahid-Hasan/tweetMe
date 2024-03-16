@@ -17,7 +17,7 @@ class Tweet(models.Model):
     image = models.FileField(upload_to='images/', blank=True, null=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='tweet_user', blank=True, through=TweetLike)
     timestamp = models.DateTimeField(auto_now_add=True)
-    retweet = models.ForeignKey("self", null=True, on_delete=models.SET_NULL)
+    retweet = models.ForeignKey("self", null=True, on_delete=models.SET_NULL, blank=True)
     total_likes = models.IntegerField(default=0)
 
     class Meta:
@@ -32,6 +32,4 @@ class Tweet(models.Model):
 def update_total_likes(sender, instance, **kwargs):
     instance.total_likes = instance.likes.count()
     instance.save()
-    print(sender, instance.likes.count())
-    print("Jahid")
 

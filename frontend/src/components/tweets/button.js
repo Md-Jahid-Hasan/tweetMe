@@ -4,7 +4,7 @@ import {Route, Redirect} from 'react-router-dom'
 
 
 export function ActionBtn(props) {
-    const {tweet, action} = props
+    const {tweet, action, style} = props
     const [likes, setLikes] = useState(tweet.total_likes)
     const [dis, setDisplay] = useState(action)
     const [auth, setAuth] = useState(false)
@@ -40,7 +40,7 @@ export function ActionBtn(props) {
     const display = dis.type === 'like' ? `${likes} ${dis.display}` : dis.display
 
     return (
-        <button className="btn btn-primary btn-sm" onClick={handleButton}>
+        <button className={"btn btn-primary btn-sm m-2 " + style || ""} onClick={handleButton}>
             {display}</button>
     )
 }

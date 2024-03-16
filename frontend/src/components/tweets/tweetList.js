@@ -29,7 +29,7 @@ export const TweetList = (props) => {
 
     return (<div>
             {allTweets.map((item, number) => (
-                  <Tweet item={item} style={"my-5 py-5 border bg-white text-dark"} key={number}/>
+                  <Tweet item={item} style={"card"} key={number}/>
                 )
             )}
         </div>

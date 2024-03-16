@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Tweet
+from accounts.serializers import UserDescriptionSerializer
 
 
 class TweetActionSerializer(serializers.Serializer):
@@ -35,10 +36,11 @@ class TweetSerializer(serializers.ModelSerializer):
     # likes = serializers.SerializerMethodField(read_only=True)
     isLike = serializers.SerializerMethodField(read_only=True)
     retweet = TweetCreateSerializer(read_only=True)
+    user = UserDescriptionSerializer(read_only=True)
 
     class Meta:
         model = Tweet
-        fields = ['id', 'content', 'likes', 'is_retweet', 'retweet', 'isLike', 'total_likes']
+        fields = ['id', 'content', 'likes', 'is_retweet', 'retweet', 'isLike', 'total_likes', 'image', 'user']
 
     def get_isLike(self, obj):
         request = self.context['request']

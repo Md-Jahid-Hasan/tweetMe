@@ -5,7 +5,6 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 
 
 const App = () => {
-    console.log(window.location.hostname, window.location.host, window.location.protocol, window.location.origin)
     return (
         <div className="container">
             <Router>
