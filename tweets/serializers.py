@@ -32,19 +32,32 @@ class TweetCreateSerializer(serializers.ModelSerializer):
         return obj.likes.filter(username=request.user).exists()
 
 
-class TweetSerializer(serializers.ModelSerializer):
-    # likes = serializers.SerializerMethodField(read_only=True)
+class ReTweetSerializer(serializers.ModelSerializer):
     isLike = serializers.SerializerMethodField(read_only=True)
-    retweet = TweetCreateSerializer(read_only=True)
     user = UserDescriptionSerializer(read_only=True)
+    timestamp = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
 
     class Meta:
         model = Tweet
-        fields = ['id', 'content', 'likes', 'is_retweet', 'retweet', 'isLike', 'total_likes', 'image', 'user']
+        fields = ['id', 'content', 'likes', 'isLike', 'total_likes', 'image', 'user', 'timestamp']
 
     def get_isLike(self, obj):
         request = self.context['request']
-        # print(obj.likes.filter(username=request.user).exists())
+        return obj.likes.filter(username=request.user).exists()
+
+
+class TweetSerializer(serializers.ModelSerializer):
+    isLike = serializers.SerializerMethodField(read_only=True)
+    retweet = ReTweetSerializer(read_only=True)
+    user = UserDescriptionSerializer(read_only=True)
+    timestamp = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S%z")
+
+    class Meta:
+        model = Tweet
+        fields = ['id', 'content', 'likes', 'is_retweet', 'retweet', 'isLike', 'total_likes', 'image', 'user', 'timestamp']
+
+    def get_isLike(self, obj):
+        request = self.context['request']
         return obj.likes.filter(username=request.user).exists()
 
 

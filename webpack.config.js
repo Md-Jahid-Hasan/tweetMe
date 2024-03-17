@@ -1,4 +1,4 @@
-module.exports ={
+module.exports = {
     module: {
         rules: [
             {
@@ -7,6 +7,10 @@ module.exports ={
                 use: {
                     loader: "babel-loader"
                 }
+            },
+            {
+                test: /\.(png|jpg)$/i,
+                type: 'asset/resource'
             }
         ]
     }
