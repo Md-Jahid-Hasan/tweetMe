@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tweet
+from .models import Tweet, TweetMedia
 from accounts.serializers import UserDescriptionSerializer
 
 
@@ -32,14 +32,21 @@ class TweetCreateSerializer(serializers.ModelSerializer):
         return obj.likes.filter(username=request.user).exists()
 
 
+class TweetMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TweetMedia
+        fields = ['image', 'video', "media_type"]
+
+
 class ReTweetSerializer(serializers.ModelSerializer):
     isLike = serializers.SerializerMethodField(read_only=True)
     user = UserDescriptionSerializer(read_only=True)
     timestamp = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+    tweet_media = TweetMediaSerializer(many=True, allow_null=True)
 
     class Meta:
         model = Tweet
-        fields = ['id', 'content', 'likes', 'isLike', 'total_likes', 'image', 'user', 'timestamp']
+        fields = ['id', 'content', 'likes', 'isLike', 'total_likes', 'tweet_media', 'user', 'timestamp']
 
     def get_isLike(self, obj):
         request = self.context['request']
@@ -51,13 +58,13 @@ class TweetSerializer(serializers.ModelSerializer):
     retweet = ReTweetSerializer(read_only=True)
     user = UserDescriptionSerializer(read_only=True)
     timestamp = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S%z")
+    tweet_media = TweetMediaSerializer(many=True, allow_null=True)
 
     class Meta:
         model = Tweet
-        fields = ['id', 'content', 'likes', 'is_retweet', 'retweet', 'isLike', 'total_likes', 'image', 'user', 'timestamp']
+        fields = ['id', 'content', 'likes', 'is_retweet', 'retweet', 'isLike', 'total_likes', 'tweet_media', 'user',
+                  'timestamp']
 
     def get_isLike(self, obj):
         request = self.context['request']
         return obj.likes.filter(username=request.user).exists()
-
-

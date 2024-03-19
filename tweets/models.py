@@ -14,7 +14,6 @@ class TweetLike(models.Model):
 class Tweet(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     content = models.TextField(blank=True, null=True)
-    image = models.FileField(upload_to='images/', blank=True, null=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='tweet_user', blank=True, through=TweetLike)
     timestamp = models.DateTimeField(auto_now_add=True)
     retweet = models.ForeignKey("self", null=True, on_delete=models.SET_NULL, blank=True)
@@ -33,3 +32,12 @@ def update_total_likes(sender, instance, **kwargs):
     instance.total_likes = instance.likes.count()
     instance.save()
 
+
+class TweetMedia(models.Model):
+    tweet = models.ForeignKey("Tweet", on_delete=models.CASCADE, related_name='tweet_media')
+    image = models.FileField(upload_to='images/', blank=True, null=True)
+    video = models.FileField(upload_to='video/', blank=True, null=True)
+
+    @property
+    def media_type(self):
+        return "image" if self.image is not None else "video"

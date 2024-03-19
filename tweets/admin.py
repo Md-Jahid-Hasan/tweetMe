@@ -1,13 +1,17 @@
 from django.contrib import admin
-from .models import Tweet, TweetLike
+from .models import Tweet, TweetLike, TweetMedia
 
 
 class TweetLikeAdmin(admin.TabularInline):
     model = TweetLike
 
 
+class TweetMediaAdmin(admin.TabularInline):
+    model = TweetMedia
+
+
 class TweetAdmin(admin.ModelAdmin):
-    inlines = [TweetLikeAdmin]
+    inlines = [TweetLikeAdmin, TweetMediaAdmin]
     list_display = ['__str__', 'user']
     search_fields = ['content', 'user']
 
