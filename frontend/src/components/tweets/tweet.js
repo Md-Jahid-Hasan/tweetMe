@@ -1,5 +1,6 @@
 import React, {useContext} from "react";
 import {ActionBtn} from "./button";
+import Avatar from "./avatar";
 import {Link, useHistory} from "react-router-dom";
 import {useGlobalContext} from "./tweetCreate";
 import moment from 'moment';
@@ -10,14 +11,15 @@ export const Tweet = (props) => {
     const {item, style} = props
     const history = useHistory()
 
+    const media_length = (threshold) => (
+        item.tweet_media.slice(0, 3).length <= threshold
+    )
+
     return (
         <div className={style}>
             <div className={"card-header border-0"}>
                 <div className="d-flex align-items-center">
-                    <div className="text-center me-2">
-                        <img src={avatar} className="img-thumbnail rounded-circle"
-                             style={{maxHeight: "3.7rem", maxWidth: "3.7rem"}} alt="..."/>
-                    </div>
+                    <Avatar profile_url={avatar}/>
                     <div className="nav gap-3 align-items-center">
                         <h6 className="nav-item mb-0">{item.user.username}</h6>
                         <span className="nav-item">{moment(item.timestamp).fromNow()}</span>
@@ -25,13 +27,30 @@ export const Tweet = (props) => {
                 </div>
             </div>
             <div className="card-body">
-                {((item.retweet && item.content) || !item.retweet) && <div>
-                    <p>{item.content}</p>
-                    {item.image && <img className={"card-img"} src={item.image} alt={"no alter"}/>}
-                </div>}
-                {item.is_retweet && <Retweet tweet={item.retweet} user={item.user}/>}
+                {/*Post body*/}
                 {((item.retweet && item.content) || !item.retweet) &&
-                    <div className="btn-toolbar p-3">
+                    <div>
+                        <p>{item.content}</p>
+                        <div className={"row g-3"}>
+                            {item.tweet_media.slice(0, 2).map((media, key, arr) => (
+                                <div key={key} className={`col-${12 / arr.length} ${(item.tweet_media.length > 2 && key === 1) ? "position-relative bg-dark text-white p-0" : ""}`}>
+                                    {(item.tweet_media.length > 2 && key === 1) &&
+                                        <p className={"position-absolute top-50 start-50 translate-middle z-index-9 fs-2 fw-bold border border-3 border-light p-2"}>
+                                            Click Here</p>}
+                                    <a href={`/details/${item.id}`}><img
+                                        className={"img-fluid " + ((item.tweet_media.length > 2 && key === 1) && "opacity-50")}
+                                        src={media.image} alt={key}/></a>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                }
+
+                {item.is_retweet && <Retweet tweet={item.retweet} user={item.user}/>}
+
+                {/*Button Section*/}
+                {((item.retweet && item.content) || !item.retweet) &&
+                    <div className="btn-toolbar py-3">
                         <ActionBtn tweet={item}
                                    action={item.isLike === false ? {type: "like", display: "Like"} :
                                        {type: "unlike", display: "Unlike"}}/>
@@ -41,10 +60,7 @@ export const Tweet = (props) => {
                                        style={"ms-sm-auto"}/>}
                     </div>}
                 <div className="d-flex mb-3">
-                    <div className="text-center me-2">
-                        <img src={avatar} className="img-thumbnail rounded-circle"
-                             style={{maxHeight: "3.7rem", maxWidth: "3.7rem"}} alt="..."/>
-                    </div>
+                    <Avatar profile_url={avatar}/>
                     <form className="row g-3 w-100">
                         <div className="form-floating col-11">
                         <textarea className="form-control" placeholder="Leave a comment here"

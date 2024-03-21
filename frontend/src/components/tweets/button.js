@@ -40,7 +40,7 @@ export function ActionBtn(props) {
     const display = dis.type === 'like' ? `${likes} ${dis.display}` : dis.display
 
     return (
-        <button className={"btn btn-primary btn-sm m-2 " + style || ""} onClick={handleButton}>
+        <button className={"btn btn-primary btn-sm me-2 " + style || ""} onClick={handleButton}>
             {display}</button>
     )
 }
