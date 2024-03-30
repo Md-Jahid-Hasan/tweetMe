@@ -11,10 +11,6 @@ export const Tweet = (props) => {
     const {item, style} = props
     const history = useHistory()
 
-    const media_length = (threshold) => (
-        item.tweet_media.slice(0, 3).length <= threshold
-    )
-
     return (
         <div className={style}>
             <div className={"card-header border-0"}>
@@ -33,13 +29,15 @@ export const Tweet = (props) => {
                         <p>{item.content}</p>
                         <div className={"row g-3"}>
                             {item.tweet_media.slice(0, 2).map((media, key, arr) => (
-                                <div key={key} className={`col-${12 / arr.length} ${(item.tweet_media.length > 2 && key === 1) ? "position-relative bg-dark text-white p-0" : ""}`}>
+                                <div key={key}
+                                     className={`col-${12 / arr.length} ${(item.tweet_media.length > 2 && key === 1) ? "position-relative bg-dark text-white p-0" : ""}`}>
                                     {(item.tweet_media.length > 2 && key === 1) &&
-                                        <p className={"position-absolute top-50 start-50 translate-middle z-index-9 fs-2 fw-bold border border-3 border-light p-2"}>
-                                            Click Here</p>}
-                                    <a href={`/details/${item.id}`}><img
-                                        className={"img-fluid " + ((item.tweet_media.length > 2 && key === 1) && "opacity-50")}
-                                        src={media.image} alt={key}/></a>
+                                        <p className={"position-absolute top-50 start-50 translate-middle z-index-9 fs-6 fw-bold border border-3 border-light p-2"}>
+                                            Click to see more...</p>}
+                                    <a href={`/details/${item.id}`}>
+                                        <img src={media.image} alt={key}
+                                             className={"img-fluid " + ((item.tweet_media.length > 2 && key === 1) && "opacity-50")}
+                                        /></a>
                                 </div>
                             ))}
                         </div>
@@ -61,17 +59,10 @@ export const Tweet = (props) => {
                     </div>}
                 <div className="d-flex mb-3">
                     <Avatar profile_url={avatar}/>
-                    <form className="row g-3 w-100">
-                        <div className="form-floating col-11">
-                        <textarea className="form-control" placeholder="Leave a comment here"
-                                  id="floatingTextarea2"></textarea>
-                            <label htmlFor="floatingTextarea2">Comments</label>
+                        <div className="input-group">
+                            <textarea className="form-control me-2" placeholder="Leave a comment here"></textarea>
+                            <button className="btn btn-primary btn-sm m-2"><i className="bi bi-send"></i></button>
                         </div>
-                        <div className="col-1">
-                            <button className="float-end btn btn-primary mb-3 float-left"><i className="bi bi-send"></i>
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>

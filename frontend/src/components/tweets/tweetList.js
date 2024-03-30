@@ -27,12 +27,12 @@ export const TweetList = (props) => {
     if (allTweets.length === 0)
         return <h1>Loading</h1>
 
-    return (<div className={"vstack gap-4"}>
+    return (<>
             {allTweets.map((item, number) => (
                   <Tweet item={item} style={"card"} key={number}/>
                 )
             )}
-        </div>
+        </>
     )
 }
 
