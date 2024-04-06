@@ -1,4 +1,4 @@
-import React, {createRef, useContext, useState} from "react";
+import React, {createRef, useContext, useRef, useState} from "react";
 import {createTweet} from "../../action/tweets";
 import {TweetList} from "./tweetList";
 import avatar from "./avatar.jpg"
@@ -29,34 +29,53 @@ export const CreateTweet = (props) => {
 
 export function TweetCreateForm(props) {
     const textAreaRef = createRef()
+    const [tweetContent, setTweetContent] = useState("")
+    const [allFile, setAllFile] = useState([])
     const {newTweetCreate} = props
 
     const getNewTweetFromAction = (response) => {
-
         if (response.status === 201) {
             newTweetCreate(response.data)
         } else {
             console.log(response)
-            alert("An error occurred")
+            alert("Failed to post.")
         }
+    }
+
+    const addNewFile = (event) => {
+        event.preventDefault()
+        let file = event.target[0].files[0]
+        setAllFile(prevState => [...prevState, file])
+        event.target[0].value = null
     }
 
     const handleSubmit = (event) => {
         event.preventDefault()
-        const content = textAreaRef.current.value
-        const tweet = {content}
+
+        let tweet = new FormData()
+        tweet.append("content", tweetContent)
+        for (const file of allFile){
+            tweet.append("images", file)
+        }
+        
         createTweet(tweet, getNewTweetFromAction)
+        setTweetContent("")
     }
+
+    const handleTweetContent = (event) => (
+        setTweetContent(event.target.value)
+    )
+
     return (
         <div className={props.className}>
             <div className={"d-flex mb-3"}>
                 <Avatar profile_url={avatar}/>
                 <form onSubmit={handleSubmit} className="w-100 me-2">
-                    <textarea ref={textAreaRef} required={true} className="form-control pe-4 border-1" name="tweet"
-                              placeholder="Share your thoughts...">
+                    <textarea required={true} className="form-control pe-4 border-1" value={tweetContent} name="tweet"
+                              placeholder="Share your thoughts..." onChange={handleTweetContent}>
                     </textarea>
+                    <button type="submit" className="btn btn-primary my-3">Tweet</button>
                 </form>
-                <button type="submit" className="btn btn-primary my-3">Tweet</button>
             </div>
             <ul className="nav nav-pills small nav-stack">
                 <li className="nav-item pe-2">
@@ -72,14 +91,14 @@ export function TweetCreateForm(props) {
                     </a>
                 </li>
             </ul>
-            <PhotoVideoModal handleSubmit={handleSubmit} textAreaRef={textAreaRef}/>
+            <PhotoVideoModal handleSubmit={handleSubmit} tweetContent={tweetContent} allFile={allFile}
+                             handleTweetContent={handleTweetContent} addNewFile={addNewFile}/>
         </div>
     )
 }
 
 export function PhotoVideoModal(props) {
-    const {handleSubmit, textAreaRef} = props
-    const [allFile, setAllFile] = useState([])
+    const {handleSubmit, tweetContent, handleTweetContent, allFile, addNewFile} = props
 
     return (
         <div className="modal fade" tabIndex="-1" id="photoVideoModal">
@@ -92,10 +111,10 @@ export function PhotoVideoModal(props) {
                     <div className="modal-body">
                         <div className={"d-flex mb-3"}>
                             <Avatar profile_url={avatar}/>
-                            <form onSubmit={handleSubmit} className="w-100">
-                                <textarea ref={textAreaRef} required={true} className="form-control pe-4 border-1"
-                                          name="tweet"
-                                          placeholder="Share your thoughts...">
+                            <form className="w-100">
+                                <textarea value={tweetContent} required={true}
+                                          className="form-control pe-4 border-1" name="tweet"
+                                          onChange={handleTweetContent} placeholder="Share your thoughts...">
                                 </textarea>
                             </form>
                         </div>
@@ -103,22 +122,22 @@ export function PhotoVideoModal(props) {
                         {allFile.map((file, key) => (
                             <div className={"d-flex flex-column col-md-3 align-items-center"} key={key}>
                                 <i className="bi bi-file-image"></i>
-                                <p>File name</p>
+                                <p>{file.name}</p>
                             </div>
                         ))}
 
                         <div>
                             <label className="form-label">Upload Attachment</label>
-                            <div className="input-group mb-3">
+                            <form className="input-group mb-3" onSubmit={addNewFile}>
                                 <input className="form-control form-control-sm" id="formFileSm" type="file"/>
-                                <button type="button" className="btn btn-success btn-sm">Add</button>
-                            </div>
+                                <button type="submit" className="btn btn-success btn-sm">Add</button>
+                            </form>
                         </div>
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-outline-danger me-2" data-bs-dismiss="modal">Close
                         </button>
-                        <button type="button" className="btn btn-outline-success">Post</button>
+                        <button type="button" onClick={handleSubmit} className="btn btn-outline-success">Post</button>
                     </div>
                 </div>
             </div>

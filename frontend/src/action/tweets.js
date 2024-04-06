@@ -21,9 +21,11 @@ export async function getTweets(callback) {
 
 
 export function createTweet(data, callback){
+    let media_header = header()
+    media_header.headers["Content-Type"] = "multipart/form-data"
 
     axios
-        .post('api/tweets/create/', data, header())
+        .post('api/tweets/create/', data, media_header)
         .then(response => callback(response))
         .catch(error => console.log(error))
 }

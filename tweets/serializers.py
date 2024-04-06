@@ -15,27 +15,49 @@ class TweetActionSerializer(serializers.Serializer):
         return value
 
 
+class TweetMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TweetMedia
+        fields = ['image', 'video', "media_type"]
+
+
+class MultipleFIleSerializer(serializers.ListField):
+    def to_representation(self, value):
+        return value
+
+
 class TweetCreateSerializer(serializers.ModelSerializer):
     isLike = serializers.SerializerMethodField(read_only=True)
+    user = UserDescriptionSerializer(read_only=True)
+    tweet_media = TweetMediaSerializer(read_only=True, many=True)
+    images = MultipleFIleSerializer(child=serializers.FileField(), write_only=True, required=False)
 
     class Meta:
         model = Tweet
-        fields = ['id', 'content', 'likes', 'isLike', 'total_likes']
+        fields = ['id', 'content', 'likes', 'isLike', 'total_likes', 'user', 'tweet_media', 'images']
 
-    def validate_content(self, value):
-        if len(value) > 240:
+    def validate(self, attrs):
+        if len(attrs['content']) > 240:
             raise serializers.ValidationError("This tweet is too long.")
-        return value
+        return attrs
 
     def get_isLike(self, obj):
         request = self.context['request']
         return obj.likes.filter(username=request.user).exists()
 
+    def create(self, validated_data):
+        all_images = validated_data.pop('images', [])
 
-class TweetMediaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TweetMedia
-        fields = ['image', 'video', "media_type"]
+        tweet = super().create(validated_data)
+
+        if all_images and len(all_images):
+            data = []
+            for image in all_images:
+                data.append({"image": image})
+            tweet_media = TweetMediaSerializer(data=data, many=True)
+            tweet_media.is_valid()
+            tweet_media.save(tweet=tweet)
+        return tweet
 
 
 class ReTweetSerializer(serializers.ModelSerializer):

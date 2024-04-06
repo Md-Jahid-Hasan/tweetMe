@@ -19,10 +19,9 @@ def tweet_list(request, *args, **kwargs):
 
 class TweetCreateView(CreateAPIView):
     serializer_class = TweetCreateSerializer
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        print(self.request.data)
         serializer.save(user=self.request.user)
 
 
