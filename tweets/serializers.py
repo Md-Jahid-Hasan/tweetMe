@@ -21,16 +21,11 @@ class TweetMediaSerializer(serializers.ModelSerializer):
         fields = ['image', 'video', "media_type"]
 
 
-class MultipleFIleSerializer(serializers.ListField):
-    def to_representation(self, value):
-        return value
-
-
 class TweetCreateSerializer(serializers.ModelSerializer):
     isLike = serializers.SerializerMethodField(read_only=True)
     user = UserDescriptionSerializer(read_only=True)
     tweet_media = TweetMediaSerializer(read_only=True, many=True)
-    images = MultipleFIleSerializer(child=serializers.FileField(), write_only=True, required=False)
+    images = serializers.ListField(child=serializers.FileField(), required=False, write_only=True)
 
     class Meta:
         model = Tweet

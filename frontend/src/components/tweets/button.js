@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {tweet_action} from "../../action/tweets";
-import {Route, Redirect} from 'react-router-dom'
+import {Route, Redirect, useHistory} from 'react-router-dom'
 
 
 export function ActionBtn(props) {
@@ -8,6 +8,7 @@ export function ActionBtn(props) {
     const [likes, setLikes] = useState(tweet.total_likes)
     const [dis, setDisplay] = useState(action)
     const [auth, setAuth] = useState(false)
+    const history = useHistory()
 
     if(auth) {
         return <Redirect to={"/login"}/>
@@ -33,8 +34,12 @@ export function ActionBtn(props) {
 
     const handleButton = (event) => {
         event.preventDefault()
-        const data = {id: tweet.id, action: dis.type}
-        tweet_action(data, handleTweetActon)
+        if(dis.type === "comment"){
+            history.push(`/details/${tweet.id}/`)
+        } else {
+            const data = {id: tweet.id, action: dis.type}
+            tweet_action(data, handleTweetActon)
+        }
     }
 
     const display = dis.type === 'like' ? `${likes} ${dis.display}` : dis.display

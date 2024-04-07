@@ -1,7 +1,6 @@
-import React, {useContext} from "react";
+import React from "react";
 import {ActionBtn} from "./button";
 import Avatar from "./avatar";
-import {Link, useHistory} from "react-router-dom";
 import {useGlobalContext} from "./tweetCreate";
 import moment from 'moment';
 import avatar from "./avatar.jpg"
@@ -9,7 +8,6 @@ import avatar from "./avatar.jpg"
 
 export const Tweet = (props) => {
     const {item, style} = props
-    const history = useHistory()
 
     return (
         <div className={style}>
@@ -30,12 +28,12 @@ export const Tweet = (props) => {
                         <div className={"row g-3"}>
                             {item.tweet_media.slice(0, 2).map((media, key, arr) => (
                                 <div key={key}
-                                     className={`col-${12 / arr.length} ${(item.tweet_media.length > 2 && key === 1) ? "position-relative bg-dark text-white p-0" : ""}`}>
+                                     className={`text-center col-${12 / arr.length} ${(item.tweet_media.length > 2 && key === 1) ? "position-relative bg-dark text-white p-0" : ""}`}>
                                     {(item.tweet_media.length > 2 && key === 1) &&
                                         <p className={"position-absolute top-50 start-50 translate-middle z-index-9 fs-6 fw-bold border border-3 border-light p-2"}>
                                             Click to see more...</p>}
                                     <a href={`/details/${item.id}`}>
-                                        <img src={media.image} alt={key}
+                                        <img src={media.image} alt={key} style={{width:"30rem", height:"45rem"}}
                                              className={"img-fluid " + ((item.tweet_media.length > 2 && key === 1) && "opacity-50")}
                                         /></a>
                                 </div>

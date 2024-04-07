@@ -1,4 +1,5 @@
 import React, {createRef, useContext, useRef, useState} from "react";
+import Resizer from "react-image-file-resizer";
 import {createTweet} from "../../action/tweets";
 import {TweetList} from "./tweetList";
 import avatar from "./avatar.jpg"
@@ -6,6 +7,23 @@ import Avatar from "./avatar";
 
 
 const Global = React.createContext()
+
+const resizeFile = (file) =>
+  new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      700,
+      1000,
+      "JPEG",
+      100,
+      0,
+      (uri) => {
+        resolve(uri);
+      },
+      "file"
+    );
+  });
+
 
 export const CreateTweet = (props) => {
     const [newTweet, setNewTweet] = useState({})
@@ -28,7 +46,6 @@ export const CreateTweet = (props) => {
 }
 
 export function TweetCreateForm(props) {
-    const textAreaRef = createRef()
     const [tweetContent, setTweetContent] = useState("")
     const [allFile, setAllFile] = useState([])
     const {newTweetCreate} = props
@@ -42,10 +59,11 @@ export function TweetCreateForm(props) {
         }
     }
 
-    const addNewFile = (event) => {
+    const addNewFile = async (event) => {
         event.preventDefault()
         let file = event.target[0].files[0]
-        setAllFile(prevState => [...prevState, file])
+        const image = await resizeFile(file);
+        setAllFile(prevState => [...prevState, image])
         event.target[0].value = null
     }
 
@@ -54,12 +72,13 @@ export function TweetCreateForm(props) {
 
         let tweet = new FormData()
         tweet.append("content", tweetContent)
-        for (const file of allFile){
+        for (const file of allFile) {
             tweet.append("images", file)
         }
-        
+
         createTweet(tweet, getNewTweetFromAction)
         setTweetContent("")
+        setAllFile([])
     }
 
     const handleTweetContent = (event) => (
@@ -70,15 +89,20 @@ export function TweetCreateForm(props) {
         <div className={props.className}>
             <div className={"d-flex mb-3"}>
                 <Avatar profile_url={avatar}/>
-                <form onSubmit={handleSubmit} className="w-100 me-2">
-                    <textarea required={true} className="form-control pe-4 border-1" value={tweetContent} name="tweet"
-                              placeholder="Share your thoughts..." onChange={handleTweetContent}>
+                <form onSubmit={handleSubmit} className="w-100 me-2 row">
+                    <div className="col-10">
+                        <textarea required={true} className="form-control pe-4 border-1" value={tweetContent}
+                                  name="tweet"
+                                  placeholder="Share your thoughts..." onChange={handleTweetContent}>
                     </textarea>
-                    <button type="submit" className="btn btn-primary my-3">Tweet</button>
+                    </div>
+                    <div className="col-2">
+                        <button type="submit" className="btn btn-primary my-3" disabled={!tweetContent}>Tweet</button>
+                    </div>
                 </form>
             </div>
             <ul className="nav nav-pills small nav-stack">
-                <li className="nav-item pe-2">
+            <li className="nav-item pe-2">
                     <a className="nav-link bg-light py-1 px-2 mb-0" href="#" data-bs-toggle="modal"
                        data-bs-target="#photoVideoModal">
                         <i className="bi bi-image-fill text-success pe-2">Photo</i>
@@ -122,7 +146,7 @@ export function PhotoVideoModal(props) {
                         {allFile.map((file, key) => (
                             <div className={"d-flex flex-column col-md-3 align-items-center"} key={key}>
                                 <i className="bi bi-file-image"></i>
-                                <p>{file.name}</p>
+                                <p className={"d-inline-block text-truncate"}  style={{maxWidth:"100px"}}>{file.name}</p>
                             </div>
                         ))}
 
@@ -130,14 +154,16 @@ export function PhotoVideoModal(props) {
                             <label className="form-label">Upload Attachment</label>
                             <form className="input-group mb-3" onSubmit={addNewFile}>
                                 <input className="form-control form-control-sm" id="formFileSm" type="file"/>
-                                <button type="submit" className="btn btn-success btn-sm">Add</button>
+                                <button type="submit" className={`btn btn-success btn-sm`}>
+                                    Add</button>
                             </form>
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-outline-danger me-2" data-bs-dismiss="modal">Close
+                        <button type="button" data-bs-dismiss="modal" className="btn btn-outline-danger me-2">Close
                         </button>
-                        <button type="button" onClick={handleSubmit} className="btn btn-outline-success">Post</button>
+                        <button type="button" onClick={handleSubmit} className="btn btn-outline-success"
+                                disabled={!tweetContent}>Post</button>
                     </div>
                 </div>
             </div>
