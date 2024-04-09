@@ -6,8 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count
 
 from .models import Tweet
-from .serializers import TweetSerializer, TweetCreateSerializer, \
-    TweetActionSerializer
+from .serializers import TweetSerializer, TweetCreateSerializer, TweetActionSerializer, TweetCommentCreateSerializer
 
 
 @api_view(['GET'])
@@ -19,7 +18,7 @@ def tweet_list(request, *args, **kwargs):
 
 class TweetCreateView(CreateAPIView):
     serializer_class = TweetCreateSerializer
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -67,3 +66,13 @@ class TweetDetailView(ListAPIView):
     def get_queryset(self):
         id = self.kwargs['tweet_id']
         return Tweet.objects.filter(pk=id)
+
+
+class TweetCommentCreateView(CreateAPIView):
+    serializer_class = TweetCommentCreateSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        tweet_id = self.kwargs['tweet_id']
+        tweet = Tweet.objects.get(pk=tweet_id)
+        serializer.save(user=self.request.user, tweet=tweet)
