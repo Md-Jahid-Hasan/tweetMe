@@ -91,3 +91,10 @@ class TweetSerializer(serializers.ModelSerializer):
     def get_isLike(self, obj):
         request = self.context['request']
         return obj.likes.filter(username=request.user).exists()
+
+
+class TweetDetailSerializer(TweetSerializer):
+    all_tweet_comments = TweetCommentCreateSerializer(many=True, read_only=True)
+
+    class Meta(TweetSerializer.Meta):
+        fields = TweetSerializer.Meta.fields + ['all_tweet_comments']

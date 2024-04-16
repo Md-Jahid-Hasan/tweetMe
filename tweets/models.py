@@ -18,6 +18,9 @@ class TweetComments(models.Model):
     content = models.TextField()
     reply_to = models.ForeignKey("self", null=True, on_delete=models.CASCADE, related_name='replies', blank=True)
 
+    class Meta:
+        ordering = ('-timestamp',)
+
 
 class Tweet(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

@@ -15,7 +15,7 @@ export const TweetDetails = () => {
     }, [])
 
     const getTweetDetails = (response) => {
-        setItem(response.data[0])
+        setItem(response.data)
     }
 
     const tweetDetailsBody = (details) => (
@@ -33,7 +33,7 @@ export const TweetDetails = () => {
             </div>
         </>
     )
-
+    console.log(item)
     return (<div>
         {item !== null ?
             <div className="card col-lg-8 mx-auto col-md-6">
@@ -62,6 +62,8 @@ export const TweetDetails = () => {
                     <div className="btn-toolbar py-3">
                         <ActionBtn tweet={item} action={item.isLike === false ? {type: "like", display: "Like"} :
                             {type: "unlike", display: "Unlike"}}/>
+                        <ActionBtn tweet={item} action={{type: "comment", display: `${item.total_comments} Comments`}}
+                                    disabled={true}/>
                     </div>
 
                     {/*Comment Section*/}
