@@ -44,6 +44,13 @@ export function tweet_details(tweet_id, callback){
         .catch(error => console.log(error))
 }
 
+export function commentCreate(tweet_id, payload, callback){
+    axios
+        .post(`http://127.0.0.1:8000/api/tweet/comments/${tweet_id}/`, payload, header())
+        .then(response => callback(response))
+        .catch(error => callback(error.response))
+}
+
 // if use Browser router we can use this route.
 // const host = window.location.protocol + "//" + window.location.host
 // `${host}/api/tweet/details/

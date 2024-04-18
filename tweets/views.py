@@ -6,8 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Prefetch
 
 from .models import Tweet, TweetComments
-from .serializers import TweetSerializer, TweetCreateSerializer, TweetActionSerializer, TweetCommentCreateSerializer, \
-    TweetDetailSerializer
+from .serializers import TweetSerializer, TweetCreateSerializer, TweetActionSerializer, TweetDetailSerializer, TweetCommentsSerializer
 
 
 @api_view(['GET'])
@@ -63,44 +62,51 @@ def tweet_action(request, *args, **kwargs):
 
 class TweetDetailView(RetrieveAPIView):
     serializer_class = TweetDetailSerializer
+    queryset = Tweet.objects.all()
 
-    def get_object(self):
-        tweet = Tweet.objects.prefetch_related(
-            Prefetch('all_tweet_comments', queryset=TweetComments.objects.filter(reply_to=None))
-        ).get(pk=self.kwargs['pk'])
-        return tweet
+    # def get_object(self):
+    #     tweet = Tweet.objects.prefetch_related(
+    #         Prefetch('all_tweet_comments',
+    #                  queryset=TweetComments.objects.filter(reply_to=None))
+    #     ).get(pk=self.kwargs['pk'])
+    #     return tweet
 
 
 class TweetCommentCreateView(CreateAPIView):
-    serializer_class = TweetCommentCreateSerializer
     permission_classes = (IsAuthenticated,)
+    serializer_class = TweetCommentsSerializer
 
-    def create(self, request, *args, **kwargs):
-        content = request.data.get('content')
-        if not content:
-            return Response({"created": False}, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        tweet_id = self.kwargs['tweet_id']
+        tweet = Tweet.objects.get(pk=tweet_id)
+        serializer.save(user=self.request.user, tweet=tweet)
 
-        try:
-            tweet = Tweet.objects.get(pk=self.kwargs['tweet_id'])
-        except Tweet.DoesNotExist:
-            return Response({"created": False}, status=status.HTTP_404_NOT_FOUND)
-
-        payload = {
-            'content': content,
-            'tweet': tweet,
-            'user': request.user,
-        }
-        reply_to = request.data.get('reply_to')
-        if reply_to:
-            try:
-                parent_comment = TweetComments.objects.get(pk=reply_to)
-                payload['reply_to'] = parent_comment
-            except TweetComments.DoesNotExist:
-                return Response({"created": False}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            TweetComments.objects.create(**payload)
-        except TweetComments.DoesNotExist:
-            return Response({"created": False}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({"created": True}, status=status.HTTP_200_OK)
+    # def create(self, request, *args, **kwargs):
+    #     content = request.data.get('content')
+    #     if not content:
+    #         return Response({"created": False}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #     try:
+    #         tweet = Tweet.objects.get(pk=self.kwargs['tweet_id'])
+    #     except Tweet.DoesNotExist:
+    #         return Response({"created": False}, status=status.HTTP_404_NOT_FOUND)
+    #
+    #     payload = {
+    #         'content': content,
+    #         'tweet': tweet,
+    #         'user': request.user,
+    #     }
+    #     reply_to = request.data.get('reply_to')
+    #     if reply_to:
+    #         try:
+    #             parent_comment = TweetComments.objects.get(pk=reply_to)
+    #             payload['reply_to'] = parent_comment
+    #         except TweetComments.DoesNotExist:
+    #             return Response({"created": False}, status=status.HTTP_404_NOT_FOUND)
+    #
+    #     try:
+    #         TweetComments.objects.create(**payload)
+    #     except TweetComments.DoesNotExist:
+    #         return Response({"created": False}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #     return Response({"created": True}, status=status.HTTP_200_OK)

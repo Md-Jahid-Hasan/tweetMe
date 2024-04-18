@@ -3,10 +3,19 @@ from .models import Tweet, TweetMedia, TweetComments
 from accounts.serializers import UserDescriptionSerializer
 
 
-class TweetCommentCreateSerializer(serializers.ModelSerializer):
+class TweetCommentsSerializer(serializers.ModelSerializer):
+    replies = serializers.SerializerMethodField(read_only=True)
+    user = UserDescriptionSerializer(required=False)
+    reply_to = serializers.PrimaryKeyRelatedField(write_only=True, queryset=TweetComments.objects.all(), required=False)
+
     class Meta:
         model = TweetComments
-        fields = ['content']
+        fields = ['id', 'user', 'content', 'timestamp', 'replies', 'reply_to']
+
+    def get_replies(self, obj):
+        replies = obj.replies.all()
+        serialized_data = TweetCommentsSerializer(replies, many=True).data
+        return serialized_data
 
 
 class TweetActionSerializer(serializers.Serializer):
@@ -94,7 +103,12 @@ class TweetSerializer(serializers.ModelSerializer):
 
 
 class TweetDetailSerializer(TweetSerializer):
-    all_tweet_comments = TweetCommentCreateSerializer(many=True, read_only=True)
+    all_tweet_comments = serializers.SerializerMethodField()
 
     class Meta(TweetSerializer.Meta):
         fields = TweetSerializer.Meta.fields + ['all_tweet_comments']
+
+    def get_all_tweet_comments(self, obj):
+        comments = obj.all_tweet_comments.filter(reply_to=None)[:10]
+        serialize_data = TweetCommentsSerializer(comments, many=True).data
+        return serialize_data
